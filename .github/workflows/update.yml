@@ -3,6 +3,7 @@ name: Lint and Update
 on:
   push:
     paths:
+      - ".github/**"
       - "01/**"
       - "02/**"
       - "03/**"
@@ -28,14 +29,6 @@ jobs:
       - name: AutoCorrect
         uses: huacnlee/autocorrect-action@main
 
-      - name: Report ReviewDog
-        if: failure()
-        uses: huacnlee/autocorrect-action@main
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          reviewdog: true
-
   update:
     name: Update
     needs: lint
@@ -43,9 +36,9 @@ jobs:
     strategy:
       matrix:
         edition:
-          - web
           - epub
           - pdf
+          - web
     steps:
       - name: repository_dispatch
         run: |

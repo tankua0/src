@@ -1,3 +1,5 @@
+name: Lint and Update
+
 on:
   push:
     paths:
@@ -16,7 +18,27 @@ on:
       - "postscript.md"
 
 jobs:
-  repository_dispatch:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: AutoCorrect
+        uses: huacnlee/autocorrect-action@main
+
+      - name: Report ReviewDog
+        if: failure()
+        uses: huacnlee/autocorrect-action@main
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          reviewdog: true
+
+  update:
+    name: Update
+    needs: lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,7 +47,8 @@ jobs:
           - epub
           - pdf
     steps:
-      - run: |
+      - name: repository_dispatch
+        run: |
           curl -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \

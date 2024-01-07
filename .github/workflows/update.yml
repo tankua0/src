@@ -1,31 +1,21 @@
-name: Lint and Update
+name: Update
 
 on:
   push:
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: AutoCorrect
-        uses: huacnlee/autocorrect-action@main
-
   update:
     name: Update
-    needs: lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
         edition:
+          - web
           - epub
           - pdf
-          - web
+
     steps:
-      - name: repository_dispatch
+      - name: Update
         run: |
           curl -L \
             -X POST \
@@ -33,4 +23,4 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/proskynova/${{ matrix.edition }}/dispatches \
-            -d '{"event_type":"push","client_payload":{"commit_message":"${{ github.event.head_commit.message }}"}}'
+            -d '{"event_type":"update","client_payload":{"commit_message":"${{ github.event.head_commit.message }}"}}'
